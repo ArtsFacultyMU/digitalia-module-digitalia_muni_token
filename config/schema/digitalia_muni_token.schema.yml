@@ -1,0 +1,22 @@
+digitalia_muni_token.settings:
+  type: config_object
+  label: 'Digitalia token config'
+  mapping:
+    media_fields:
+      type: text
+      label: 'Media fields'
+    reference_fields:
+      type: text
+      label: 'Allowed reference fields'
+    media_delimiter:
+      type: string
+      label: 'Media delimiter'
+    reference_delimiter:
+      type: string
+      label: 'Reference delimiter'
+    double_fields:
+      type: string
+      label: 'Double fields'
+    triple_fields:
+      type: string
+      label: 'Triple fields'

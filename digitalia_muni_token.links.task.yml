@@ -1,0 +1,4 @@
+digitalia_muni_token.admin.config:
+        route_name: digitalia_muni_token.admin.config
+        title: Settings
+        base_route: digitalia_muni_token.admin.config

@@ -1,0 +1,5 @@
+system.digitalia_muni_token_settings:
+        title: 'Digitalia token'
+        description: 'Settings of digitalia_muni token module'
+        route_name: system.digitalia_muni_token_settings
+        parent: 'system.admin_config_search'

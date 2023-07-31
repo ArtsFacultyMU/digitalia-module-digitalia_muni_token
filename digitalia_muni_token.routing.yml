@@ -1,0 +1,7 @@
+system.digitalia_muni_token_settings:
+  path: '/admin/config/search/digitalia_muni_token'
+  defaults:
+    _form: '\Drupal\digitalia_muni_token\Form\DigitaliaTokenSettingsForm'
+    _title: 'Digitalia token settings'
+  requirements:
+    _permission: 'administer site configuration'

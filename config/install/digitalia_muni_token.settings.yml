@@ -1,0 +1,7 @@
+langcode: 'en'
+media_delimiter: ';'
+reference_delimiter: ';'
+media_fields: 'image:field_media_image;file:field_media_file'
+reference_fields: 'field_member_of'
+double_fields: ''
+triple_fields: ''

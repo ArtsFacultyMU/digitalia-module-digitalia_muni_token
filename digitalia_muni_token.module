@@ -1,0 +1,23 @@
+<?php
+
+use Drupal\digitalia_muni_token\DigitaliaMuniTokenInterface;
+
+/**
+ * @file
+ * Contains digitalia_muni_token.module.
+ */
+
+/**
+ * Implements hook_metatag_tags_alter().
+ */
+function digitalia_muni_token_metatag_tags_alter(&$definitions)
+{
+	$test = DigitaliaMuniTokenInterface::DOUBLE_FIELDS_PREFIX;
+	$terms = ['dcterms_relation'];
+	foreach ($terms as $term) {
+		if (!empty($definitions[$term])) {
+			$definitions[$term]['multiple'] = TRUE;
+		}
+	}
+}
+
