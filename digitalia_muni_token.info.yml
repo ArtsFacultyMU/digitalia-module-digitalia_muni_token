@@ -2,7 +2,7 @@ name: Digitalia tokens
 description: "Provides a token for displaying URLs of published media files of a node and field tokens of reverse references"
 package: custom
 type: module
-core_version_requirement: ^8 || ^9
+core_version_requirement: ^8 || ^9 || ^10
 configure: system.digitalia_muni_token_settings
 dependencies:
   - drupal:token
