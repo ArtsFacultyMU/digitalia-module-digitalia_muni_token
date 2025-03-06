@@ -16,8 +16,8 @@ In the configuration there must be specified media types which should be listed
 whenever token [digitalia\_muni:media\_urls] is used. Then all medias (their 
 absolute URLs) associated to the processed node are listed. 
 
-Complementing token for listing all MIME types of a node is
-[digitalia\_muni:media\_mime\_types].
+Complementing token for listing set of all MIME types from media associated with
+a node is [digitalia\_muni:media\_mime\_types].
 
 2. Reference fields
  

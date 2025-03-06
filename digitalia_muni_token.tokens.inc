@@ -682,9 +682,9 @@ function digitalia_muni_media_mime($node, $delimiter = ';')
 		}
 
 		if ($media->get('field_mime_type')) {
-			array_push($media_array, $media->get('field_mime_type')->value);
+			$media_array[$media->get('field_mime_type')->value] = 1;
 		}
 	}
 
-	return implode($delimiter, $media_array);
+	return implode($delimiter, array_keys($media_array));
 }
