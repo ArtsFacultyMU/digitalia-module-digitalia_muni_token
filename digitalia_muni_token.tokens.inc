@@ -602,9 +602,7 @@ function digitalia_muni_url_to_media($node, $delimiter = ';')
 	$media_array = array();
 	$islandora_utils = \Drupal::service('islandora.utils');
 	$media_list = $islandora_utils->getMedia($node);
-	#dpm("DEBUG: media no " . count($media_list));
 
-	// finds existing published media and lists their download URLs
 	foreach($media_list as $element) {
 		if (!is_object($element) || is_null($element->id())) {
 			continue;
@@ -612,8 +610,6 @@ function digitalia_muni_url_to_media($node, $delimiter = ';')
 
 		$media = Media::load($element->id());
 
-		#dpm("DEBUG: media status = " . $media->get('status')->value);
-		// skip if not published
 		if ($media->get('status')->value != 1) {
 			continue;
 		}
@@ -627,20 +623,16 @@ function digitalia_muni_url_to_media($node, $delimiter = ';')
 			continue;
 		}
 
-		#dpm("DEBUG: found fids = ". count($fid));
-
 		$fid_value = (is_array($fid) && array_key_exists(0, $fid) &&
 			     array_key_exists('target_id', $fid[0])) ?
 			     $fid[0]['target_id'] : NULL;
 
-		#dpm("DEBUG: fid value = ". $fid_value);
 		if (is_null($fid_value)) {
 			continue;
 		}
 
 		$file = File::load($fid_value);
 		if ($file) {
-			#dpm("DEBUG: file loaded, URL: ". $islandora_utils->getDownloadUrl($file));
 			array_push($media_array, $islandora_utils->getDownloadUrl($file));
 		}
 	}
@@ -665,9 +657,7 @@ function digitalia_muni_media_mime($node, $delimiter = ';')
 	$media_array = array();
 	$islandora_utils = \Drupal::service('islandora.utils');
 	$media_list = $islandora_utils->getMedia($node);
-	#dpm("DEBUG: media no " . count($media_list));
 
-	// finds existing published media and lists their download URLs
 	foreach($media_list as $element) {
 		if (!is_object($element) || is_null($element->id())) {
 			continue;
@@ -675,8 +665,6 @@ function digitalia_muni_media_mime($node, $delimiter = ';')
 
 		$media = Media::load($element->id());
 
-		#dpm("DEBUG: media status = " . $media->get('status')->value);
-		// skip if not published
 		if ($media->get('status')->value != 1) {
 			continue;
 		}
