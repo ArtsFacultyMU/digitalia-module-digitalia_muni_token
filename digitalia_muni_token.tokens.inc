@@ -32,6 +32,11 @@ function digitalia_muni_token_token_info()
 		'description' => t('URLs of related media files'),
 	];
 
+	$node['media_mime_types'] = [
+		'name' => t("Media MIME types"),
+		'description' => t('MIME types of related media files'),
+	];
+
 	$config = \Drupal::config('digitalia_muni_token.settings');
 	$reference_fields = explode(";", $config->get('reference_fields'));
 
@@ -100,6 +105,9 @@ function digitalia_muni_token_tokens($type, $tokens, array $data, array $options
 
 			if ($name == 'media_urls') {
 				$replacements[$original] = ' ' . digitalia_muni_url_to_media($data['node'], $config->get('media_delimiter'));
+			}
+			elseif ($name == 'media_mime_types') {
+				$replacements[$original] = ' ' . digitalia_muni_media_mime($data['node'], $config->get('media_delimiter'));
 			}
 			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::DOUBLE_FIELDS_PREFIX)) {
 				$replacements[$original] = ' ' . digitalia_muni_double_field($data['node'], $name, $original, $tokens, $options, $bubbleable_metadata);
@@ -634,6 +642,47 @@ function digitalia_muni_url_to_media($node, $delimiter = ';')
 		if ($file) {
 			#dpm("DEBUG: file loaded, URL: ". $islandora_utils->getDownloadUrl($file));
 			array_push($media_array, $islandora_utils->getDownloadUrl($file));
+		}
+	}
+
+	return implode($delimiter, $media_array);
+}
+
+/**
+ * Gets published media file MIME types of a given node.
+ *
+ * @param object $node
+ *   A core drupal node object.
+ *
+ * @param string $delimiter
+ *   A delimiter character of the result
+ *
+ * @return string
+ *   The tokenized value for the given data. Multiple entries are separated (default ';')
+ */
+function digitalia_muni_media_mime($node, $delimiter = ';')
+{
+	$media_array = array();
+	$islandora_utils = \Drupal::service('islandora.utils');
+	$media_list = $islandora_utils->getMedia($node);
+	#dpm("DEBUG: media no " . count($media_list));
+
+	// finds existing published media and lists their download URLs
+	foreach($media_list as $element) {
+		if (!is_object($element) || is_null($element->id())) {
+			continue;
+		}
+
+		$media = Media::load($element->id());
+
+		#dpm("DEBUG: media status = " . $media->get('status')->value);
+		// skip if not published
+		if ($media->get('status')->value != 1) {
+			continue;
+		}
+
+		if ($media->get('field_mime_type')) {
+			array_push($media_array, $media->get('field_mime_type')->value);
 		}
 	}
 
