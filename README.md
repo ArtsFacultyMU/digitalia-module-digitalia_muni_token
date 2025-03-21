@@ -153,6 +153,9 @@ e.g:
 Twig example:
 {{ drupal\_token('digitalia\_muni:leaves\_scan', {'nid': nid}) }}
 
+A simplified version of this token returns wether any leaves of specified type
+exist. The form is the same, only prefix "leaves\_" is replaced with "any\_leaves\_".
+
 
 ## Digitalia Token configuration
 

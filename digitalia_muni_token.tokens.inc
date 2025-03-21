@@ -86,15 +86,19 @@ function digitalia_muni_token_token_info()
 	//];
 
 	$leaves_prefix = DigitaliaMuniTokenInterface::LEAVES_PREFIX;
+	$leaves_any_prefix = DigitaliaMuniTokenInterface::ANY_LEAVES_PREFIX;
 	$leaves_config = explode(';', $config->get('leaves_type'));
 	$leaves_parsed_config = [];
 
 	foreach ($leaves_config as $element) {
 		$line = explode(':', $element);
-		$leaves_parsed_config[$line[0]] = $line[1];
 		$node[$leaves_prefix . $line[0]] = [
 			'name' => t("Node leaves"),
-			'description' => t('Number of leaves of node'),
+			'description' => t("Number of '{$line[0]}' leaves of node"),
+		];
+		$node[$leaves_any_prefix . $line[0]] = [
+			'name' => t("Node leaves"),
+			'description' => t("Wether node has any '{$line[0]}' leaves"),
 		];
 	}
 
@@ -130,7 +134,7 @@ function digitalia_muni_token_tokens($type, $tokens, array $data, array $options
 			elseif ($name == 'media_mime_types') {
 				$replacements[$original] = ' ' . digitalia_muni_media_mime($data['node'], $config->get('media_delimiter'));
 			}
-			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::LEAVES_PREFIX)) {
+			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::LEAVES_PREFIX) || str_starts_with($name, DigitaliaMuniTokenInterface::ANY_LEAVES_PREFIX)) {
 				$replacements[$original] = digitalia_muni_leaves($data['node'], $name);
 			}
 			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::DOUBLE_FIELDS_PREFIX)) {
@@ -216,8 +220,8 @@ function get_referenced_entities($node, $field, $is_taxonomy = false)
  * @param string $field
  *   Token name
  *
- * @return int
- *   Number of leaves of specified type
+ * @return int|bool
+ *   Number of leaves of specified type or if any leaves exist
  */
 function digitalia_muni_leaves($node, $name)
 {
@@ -231,10 +235,48 @@ function digitalia_muni_leaves($node, $name)
 	}
 
 	$prefix = DigitaliaMuniTokenInterface::LEAVES_PREFIX;
+	$any_prefix = DigitaliaMuniTokenInterface::ANY_LEAVES_PREFIX;
 
-	$leaf_bundle = preg_replace("/^{$prefix}/", '', $name);
+	$leaf_bundle = preg_replace("/^{$any_prefix}/", '', $name);
+	$any = $leaf_bundle != $name;
+	$leaf_bundle = preg_replace("/^{$prefix}/", '', $leaf_bundle);
+
+	if ($any) {
+		return digitalia_muni_leaves_any($node, $leaf_bundle, $parsed_config[$leaf_bundle]);
+	}
 
 	return digitalia_muni_leaves_count($node, $leaf_bundle, $parsed_config[$leaf_bundle]);
+}
+
+/**
+ * Returns wether any leaves of specified type exist
+ *
+ * @param object $node
+ *   A core drupal node object.
+ *
+ * @param string $leaf_bundle
+ *   Machine name of leaf bundle
+ *
+ * @param string $reference_field
+ *   Machine name of reference field used to traverse the node tree
+ *
+ * @return bool
+ *   
+ */
+function digitalia_muni_leaves_any($node, $leaf_bundle, $reference_field)
+{
+	$children = \Drupal::entityTypeManager()->getStorage("node")->loadByProperties([$reference_field => $node->id()]);
+	if ($node->bundle() == $leaf_bundle && empty($children)) {
+		return true;
+	}
+
+	foreach ($children as $child) {
+		if (digitalia_muni_leaves_count($child, $leaf_bundle, $reference_field)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**

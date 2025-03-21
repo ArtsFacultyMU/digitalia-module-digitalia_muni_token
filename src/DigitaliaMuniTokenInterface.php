@@ -38,4 +38,9 @@ interface DigitaliaMuniTokenInterface {
 	 */
 	const LEAVES_PREFIX = 'leaves_';
 
+	/**
+	 * Prefix for any leaves tokens.
+	 */
+	const ANY_LEAVES_PREFIX = 'any_leaves_';
+
 }
