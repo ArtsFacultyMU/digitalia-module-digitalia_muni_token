@@ -73,6 +73,14 @@ class DigitaliaTokenSettingsForm extends ConfigFormBase
 			'#description' => $this->t('Allowed triple fields, separated by \';\', each in format <i>field</i>:[1|2|3].'),
 		];
 
+		$form['leaves_type'] = [
+			'#type' => 'textarea',
+			'#size' => 60,
+			'#title' => $this->t('Leaves type'),
+			'#default_value' => $config->get('leaves_type'),
+			'#description' => $this->t('Doubles of allowed leaf type and reference field separated by \':\'., whole doubles are separated by \';\'.'),
+		];
+
 		return $form;
 	}
 
@@ -94,6 +102,7 @@ class DigitaliaTokenSettingsForm extends ConfigFormBase
 		$config->set('reference_fields', $form_state->getValue('reference_fields'));
 		$config->set('double_fields', $form_state->getValue('double_fields'));
 		$config->set('triple_fields', $form_state->getValue('triple_fields'));
+		$config->set('leaves_type', $form_state->getValue('leaves_type'));
 		$config->save();
 
 		return parent::submitForm($form, $form_state);

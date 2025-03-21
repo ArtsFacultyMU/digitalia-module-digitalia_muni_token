@@ -37,6 +37,7 @@ function digitalia_muni_token_token_info()
 		'description' => t('MIME types of related media files'),
 	];
 
+
 	$config = \Drupal::config('digitalia_muni_token.settings');
 	$reference_fields = explode(";", $config->get('reference_fields'));
 
@@ -84,6 +85,18 @@ function digitalia_muni_token_token_info()
 	//	'description' => t("Test case"),
 	//];
 
+	$leaves_prefix = DigitaliaMuniTokenInterface::LEAVES_PREFIX;
+	$leaves_config = explode(';', $config->get('leaves_type'));
+	$leaves_parsed_config = [];
+
+	foreach ($leaves_config as $element) {
+		$line = explode(':', $element);
+		$leaves_parsed_config[$line[0]] = $line[1];
+		$node[$leaves_prefix . $line[0]] = [
+			'name' => t("Node leaves"),
+			'description' => t('Number of leaves of node'),
+		];
+	}
 
 	return [
 		'types' => ['digitalia_muni' => $type],
@@ -99,15 +112,26 @@ function digitalia_muni_token_tokens($type, $tokens, array $data, array $options
 	$config = \Drupal::config('digitalia_muni_token.settings');
 	$replacements = [];
 
+	// enable using nid instead of node, useful for using node tokens from within views text fields
+	if ($type == 'digitalia_muni' && !empty($data['nid'])) {
+		$nid = (string) $data['nid'];
+		\Drupal::logger("DEBUG_LEAVES")->debug(print_r($nid, TRUE));
+		$data['node'] = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['nid' => $nid])[$nid];
+	}
+
 	if ($type == 'digitalia_muni' && !empty($data['node'])) {
 		foreach ($tokens as $name => $original) {
 			//print "$name<br>";
+			\Drupal::logger("DEBUG_LEAVES")->debug(print_r($name, TRUE));
 
 			if ($name == 'media_urls') {
 				$replacements[$original] = ' ' . digitalia_muni_url_to_media($data['node'], $config->get('media_delimiter'));
 			}
 			elseif ($name == 'media_mime_types') {
 				$replacements[$original] = ' ' . digitalia_muni_media_mime($data['node'], $config->get('media_delimiter'));
+			}
+			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::LEAVES_PREFIX)) {
+				$replacements[$original] = digitalia_muni_leaves($data['node'], $name);
 			}
 			elseif (str_starts_with($name, DigitaliaMuniTokenInterface::DOUBLE_FIELDS_PREFIX)) {
 				$replacements[$original] = ' ' . digitalia_muni_double_field($data['node'], $name, $original, $tokens, $options, $bubbleable_metadata);
@@ -181,6 +205,66 @@ function get_referenced_entities($node, $field, $is_taxonomy = false)
 		return $entities;
 	}
 	return [];
+}
+
+/**
+ * Count number of leaves based on config
+ *
+ * @param object $node
+ *   A core drupal node object.
+ *
+ * @param string $field
+ *   Token name
+ *
+ * @return int
+ *   Number of leaves of specified type
+ */
+function digitalia_muni_leaves($node, $name)
+{
+	$config = \Drupal::config('digitalia_muni_token.settings');
+	$config_bundles = explode(';', $config->get('leaves_type'));
+	$parsed_config = [];
+
+	foreach ($config_bundles as $element) {
+		$line = explode(':', $element);
+		$parsed_config[$line[0]] = $line[1];
+	}
+
+	$prefix = DigitaliaMuniTokenInterface::LEAVES_PREFIX;
+
+	$leaf_bundle = preg_replace("/^{$prefix}/", '', $name);
+
+	return digitalia_muni_leaves_count($node, $leaf_bundle, $parsed_config[$leaf_bundle]);
+}
+
+/**
+ * Counts all leaves of specified type and reference
+ *
+ * @param object $node
+ *   A core drupal node object.
+ *
+ * @param string $leaf_bundle
+ *   Machine name of leaf bundle
+ *
+ * @param string $reference_field
+ *   Machine name of reference field used to traverse the node tree
+ *
+ * @return int
+ *   Number of leaves of type $leaf_bundle
+ */
+function digitalia_muni_leaves_count($node, $leaf_bundle, $reference_field)
+{
+	$children = \Drupal::entityTypeManager()->getStorage("node")->loadByProperties([$reference_field => $node->id()]);
+	if ($node->bundle() == $leaf_bundle && empty($children)) {
+		return 1;
+	}
+
+	$count = 0;
+	foreach ($children as $child) {
+		$count += digitalia_muni_leaves_count($child, $leaf_bundle, $reference_field);
+	}
+
+	return $count;
 }
 
 /**

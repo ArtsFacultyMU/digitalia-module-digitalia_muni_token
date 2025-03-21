@@ -33,5 +33,9 @@ interface DigitaliaMuniTokenInterface {
 	 */
 	const JOURNAL_PREFIX = 'journal_';
 
+	/**
+	 * Prefix for leaves tokens.
+	 */
+	const LEAVES_PREFIX = 'leaves_';
 
 }
