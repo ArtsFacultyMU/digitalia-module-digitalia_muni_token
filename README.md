@@ -146,11 +146,15 @@ The token accepts both node and nid in the data array, so usage inside views tex
 field with twig is possible.
 
 Tokens are in form:
+
 [digitalia\_muni:leaves\_leaf\_bundle]
+
 e.g:
+
 [digitalia\_muni:leaves\_scan]
 
 Twig example:
+
 {{ drupal\_token('digitalia\_muni:leaves\_scan', {'nid': nid}) }}
 
 A simplified version of this token returns wether any leaves of specified type
