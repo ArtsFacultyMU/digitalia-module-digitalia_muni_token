@@ -136,6 +136,24 @@ Then it might be accessed via
 notice that there must be one of the prefixes "double\_\_" or "triple\_\_"
 specified when used in token!
 
+4. Leaf count
+
+Displays count of leaves of specified type. In configuration form tuples of
+"leaf\_type:reference\_field" separated by ";" must be specified. The traversing
+expects references from child to parent.
+
+The token accepts both node and nid in the data array, so usage inside views text
+field with twig is possible.
+
+Tokens are in form:
+[digitalia\_muni:leaves\_leaf\_bundle]
+e.g:
+[digitalia\_muni:leaves\_scan]
+
+Twig example:
+{{ drupal\_token('digitalia\_muni:leaves\_scan', {'nid': nid}) }}
+
+
 ## Digitalia Token configuration
 
 /admin/config/search/digitalia\_muni\_token
